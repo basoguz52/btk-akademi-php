@@ -23,7 +23,8 @@ require "libs/functions.php";
                     <tr>
                         <th style="width: 50px;">Id</th>
                         <th style="width: 150px;">Resim</th>
-                        <th>Başlık</th>
+                        <th style="width: 150px;">Başlık</th>
+                        <th style="width: 250px;">Kategori</th>
                         <th>Alt Başlık</th>
                         <th style="width: 100px;">Onay</th>
                         <th style="width: 160px;">Butonlar</th>
@@ -36,6 +37,22 @@ require "libs/functions.php";
                             <td><?php echo $course['id']; ?></td>
                             <td><img class="img-fluid" src="img/<?php echo $course['resim']; ?>" alt=""></td>
                             <td><?php echo $course['baslik']; ?></td>
+                            <td>
+                                <ul>
+
+                                    <?php
+                                    $result = getCategoriesByCourseId($course['id']);
+                                    if (mysqli_num_rows($result) > 0) {
+                                        while ($category = mysqli_fetch_assoc($result)) {
+                                            echo "<li>" . $category['kategori_adi'] . "</li>";
+                                        }
+                                    } else {
+                                        echo "<li>Kategori seçilmedi</li>";
+                                    }
+
+                                    ?>
+                                </ul>
+                            </td>
                             <td><?php echo $course['altBaslik']; ?></td>
                             <td><?php echo ($course['onay']) ? "<i class='fas fa-check'></i>" : "<i class='fas fa-times'></i>"; ?></td>
                             <td>
