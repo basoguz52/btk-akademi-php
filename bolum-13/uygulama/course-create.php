@@ -8,8 +8,8 @@
 <?php
 session_start();
 $baslik = $altBaslik = $resim =  "";
-$kategori = "-1";
-$baslikErr = $altBaslikErr = $resimErr = $kategoriErr = "";
+
+$baslikErr = $altBaslikErr = $resimErr  = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($_POST['baslik'])) {
@@ -28,14 +28,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         uploadİmage($_FILES['imageFile']);
         $resim = $_FILES['imageFile']['name'];
     }
-    if ($_POST['kategori'] == -1) {
-        $kategoriErr = "Kategori seçiniz.";
-    } else {
-        $kategori = $_POST['kategori'];
-    }
 
-    if (empty($baslikErr) && empty($altBaslikErr) && empty($resimErr) && empty($kategoriErr)) {
-        createCourse($baslik, $altBaslik, $resim,$kategori);
+    if (empty($baslikErr) && empty($altBaslikErr) && empty($resimErr)) {
+        createCourse($baslik, $altBaslik, $resim);
         $_SESSION['message'] = $baslik . " isimli kurs eklendi";
         $_SESSION['type'] = "success";
         header("Location: admin-courses.php");
@@ -73,22 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="file" name="imageFile" id="imageFile" class="form-control">
                     </div>
                     <div class="mb-3 text-danger"><?php echo $resimErr; ?></div>
-                    <div class="mb-3">
-                        <label for="kategori">Şehir</label>
-                        <select name="kategori" id="kategori" class="form-select">
-                            <option value="-1" selected>Kategori Seçiniz</option>
-
-                            <?php foreach (getCategories() as $c) : ?>
-                                <option value="<?php echo $c["id"]; ?>">
-                                    <?php echo $c['kategori_adi'] ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <script>
-                            document.getElementById("kategori").value = "<?php echo $kategori ?>";
-                        </script>
-                        <div class="text-danger"><?php echo $kategoriErr;  ?></div>
-                    </div>
+            
                     <button type="submit" class="btn btn-primary">Kaydet</button>
                 </form>
             </div>

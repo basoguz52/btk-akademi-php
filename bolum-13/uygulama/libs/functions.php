@@ -10,6 +10,16 @@ function getCategories()
     return $sonuc;
 }
 
+function clearCourseCaregories(int $id)
+{
+    include "ayar.php";
+
+    $query = "DELETE FROM kurs_kategori WHERE kurs_id=$id";
+    $sonuc = mysqli_query($baglanti, $query);
+    mysqli_close($baglanti);
+    return $sonuc;
+}
+
 function getCourses()
 {
     include "ayar.php";
@@ -19,14 +29,14 @@ function getCourses()
     mysqli_close($baglanti);
     return $sonuc;
 }
-function getCategoriesByCourseId(int $courseId) {
+function getCategoriesByCourseId(int $courseId)
+{
     include "ayar.php";
     $query = "SELECT * FROM `kurs_kategori` kg INNER JOIN kategoriler k ON kg.kategori_id = k.id WHERE kg.kurs_id=$courseId";
-    
+
     $sonuc = mysqli_query($baglanti, $query);
     mysqli_close($baglanti);
     return $sonuc;
-
 }
 function editCategory($id, string $category)
 {
@@ -36,13 +46,29 @@ function editCategory($id, string $category)
     mysqli_close($baglanti);
     return $sonuc;
 }
-function editCourse($id, string $baslik, string $altBaslik, string $resim, int $kategori_id, int $onay)
+
+function addCourseCategories(int $id, array $categories)
+{
+    include "ayar.php";
+    $query = "";
+
+    foreach ($categories as $catId) {
+        $query .= "INSERT INTO kurs_kategori(kurs_id,kategori_id) VALUES($id,$catId);";
+    }
+
+    $sonuc = mysqli_multi_query($baglanti,$query);
+    mysqli_close($baglanti);
+    return $sonuc;
+
+}
+
+function editCourse($id, string $baslik, string $altBaslik, string $resim, int $onay)
 {
     include "ayar.php";
     if ($resim != null) {
-        $query = "UPDATE kurslar SET baslik='$baslik', altBaslik='$altBaslik', resim='$resim', onay='$onay',kategori_id='$kategori_id' WHERE id='$id'";
+        $query = "UPDATE kurslar SET baslik='$baslik', altBaslik='$altBaslik', resim='$resim', onay='$onay' WHERE id='$id'";
     } else {
-        $query = "UPDATE kurslar SET baslik='$baslik', altBaslik='$altBaslik', kategori_id='$kategori_id' ,onay='$onay' WHERE id='$id'";
+        $query = "UPDATE kurslar SET baslik='$baslik', altBaslik='$altBaslik', onay='$onay' WHERE id='$id'";
     }
     $sonuc = mysqli_query($baglanti, $query);
     mysqli_close($baglanti);
@@ -101,15 +127,15 @@ function getCategoryById(int $id)
     return $sonuc;
 }
 
-function createCourse(string $baslik, string $altBaslik, string $resim, string $kategori_id, int $yorumSayisi = 0, int $begeniSayisi = 0, int $onay = 0)
+function createCourse(string $baslik, string $altBaslik, string $resim, int $yorumSayisi = 0, int $begeniSayisi = 0, int $onay = 0)
 {
     include "ayar.php";
 
     // $query = "INSERT INTO kurslar(baslik,altBaslik,resim,yayinTarihi,yorumSayisi,begeniSayisi,onay) VALUES (?,?,?,?,?,?,?)";
-    $query = "INSERT INTO kurslar(baslik,altBaslik,resim,kategori_id,yorumSayisi,begeniSayisi,onay) VALUES (?,?,?,?,?,?,?)";
+    $query = "INSERT INTO kurslar(baslik,altBaslik,resim,yorumSayisi,begeniSayisi,onay) VALUES (?,?,?,?,?,?)";
     $stmt = mysqli_prepare($baglanti, $query);
 
-    mysqli_stmt_bind_param($stmt, 'ssssiii', $baslik, $altBaslik, $resim,$kategori_id, $yorumSayisi, $begeniSayisi, $onay);
+    mysqli_stmt_bind_param($stmt, 'sssiii', $baslik, $altBaslik, $resim, $yorumSayisi, $begeniSayisi, $onay);
     mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
 
