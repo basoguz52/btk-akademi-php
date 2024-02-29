@@ -19,19 +19,48 @@ function clearCourseCategories(int $id)
     mysqli_close($baglanti);
     return $sonuc;
 }
+function getCoursesByFilters($categoryId, $keyword, $page)
+{
+    include "ayar.php";
 
-function getCourses(bool $anasayfa,bool $onay)
+    $pageCount = 2;
+    $offset = ($page - 1) * $pageCount;
+    $query = "";
+    if (!empty($categoryId)) {
+        $query = "FROM `kurs_kategori` kg INNER JOIN kurslar k ON kg.kurs_id = k.id WHERE kg.kategori_id=$categoryId and onay=1";
+    } else {
+        $query = "FROM kurslar WHERE onay=1";
+    }
+
+    if (!empty($keyword)) {
+        $query .= " and baslik LIKE '%$keyword%' or altBaslik LIKE '%$keyword%' or aciklama LIKE '%$keyword%'";
+    }
+
+
+    $total_sql= "SELECT COUNT(*) ".$query;
+    $count_data = mysqli_query($baglanti,$total_sql);
+    $count = mysqli_fetch_array($count_data)[0];
+    $total_pages = ceil($count / $pageCount);
+
+    $sql = "SELECT * ". $query." LIMIT $offset, $pageCount";
+
+    $sonuc = mysqli_query($baglanti, $sql);
+    mysqli_close($baglanti);
+    return $sonuc;
+}
+
+function getCourses(bool $anasayfa, bool $onay)
 {
     include "ayar.php";
     $query = "SELECT * FROM kurslar";
-    
+
     if ($anasayfa) {
         $query .= " WHERE anasayfa=1";
     }
     if ($onay) {
         if (str_contains($query, "WHERE")) {
             $query .= " and onay =1";
-        }else {
+        } else {
             $query .= " WHERE onay =1";
         }
     }
@@ -85,10 +114,9 @@ function addCourseCategories(int $id, array $categories)
         $query .= "INSERT INTO kurs_kategori(kurs_id,kategori_id) VALUES($id,$catId);";
     }
 
-    $sonuc = mysqli_multi_query($baglanti,$query);
+    $sonuc = mysqli_multi_query($baglanti, $query);
     mysqli_close($baglanti);
     return $sonuc;
-
 }
 
 function editCourse($id, string $baslik, string $altBaslik, string $aciklama, string $resim, int $onay, int $anasayfa)
@@ -156,7 +184,7 @@ function getCategoryById(int $id)
     return $sonuc;
 }
 
-function createCourse(string $baslik, string $altBaslik,string $aciklama,string $resim, int $yorumSayisi = 0, int $begeniSayisi = 0, int $onay = 0)
+function createCourse(string $baslik, string $altBaslik, string $aciklama, string $resim, int $yorumSayisi = 0, int $begeniSayisi = 0, int $onay = 0)
 {
     include "ayar.php";
 
@@ -164,7 +192,7 @@ function createCourse(string $baslik, string $altBaslik,string $aciklama,string 
     $query = "INSERT INTO kurslar(baslik,altBaslik,aciklama,resim,yorumSayisi,begeniSayisi,onay) VALUES (?,?,?,?,?,?,?)";
     $stmt = mysqli_prepare($baglanti, $query);
 
-    mysqli_stmt_bind_param($stmt, 'ssssiii', $baslik, $altBaslik,$aciklama, $resim, $yorumSayisi, $begeniSayisi, $onay);
+    mysqli_stmt_bind_param($stmt, 'ssssiii', $baslik, $altBaslik, $aciklama, $resim, $yorumSayisi, $begeniSayisi, $onay);
     mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
 
