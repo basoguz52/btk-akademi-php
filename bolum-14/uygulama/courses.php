@@ -4,19 +4,20 @@ require "libs/variables.php";
 require "libs/functions.php";
 
 
-    $categoryId = "";
-    $keyword = "";
-    $page = 1;
+$categoryId = "";
+$keyword = "";
+$page = 1;
 
-    if (isset($_GET['categoryid']) && is_numeric($_GET['categoryid']))
-        $categoryId = $_GET['categoryid'];
-    if(isset($_GET['q']))
-        $keyword = $_GET['q'];
-    if (isset($_GET['page']) && is_numeric($_GET['page']))
-        $page = $_GET['page'];
+if (isset($_GET['categoryid']) && is_numeric($_GET['categoryid']))
+    $categoryId = $_GET['categoryid'];
+if (isset($_GET['q']))
+    $keyword = $_GET['q'];
+if (isset($_GET['page']) && is_numeric($_GET['page']))
+    $page = $_GET['page'];
 
-    $kurslar = getCoursesByFilters($categoryId,$keyword,$page);
-    
+$res = getCoursesByFilters($categoryId, $keyword, $page);
+
+
 ?>
 
 
@@ -34,9 +35,9 @@ require "libs/functions.php";
 
             <div class="col-9">
                 <?php require "partials/_kursbaslik.php"; ?>
-                <?php if (mysqli_num_rows($kurslar) > 0) : ?>
+                <?php if (mysqli_num_rows($res['data']) > 0) : ?>
 
-                    <?php foreach ($kurslar as $kurs) : ?>
+                    <?php foreach ($res['data'] as $kurs) : ?>
 
                         <?php if ($kurs["onay"]) : ?>
 
@@ -89,15 +90,35 @@ require "libs/functions.php";
                     </div>
                 <?php endif ?>
 
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination">
-                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                    </ul>
-                </nav>
+                <?php if ($res['total_pages'] > 1) : ?>
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination">
+                            <?php for ($x = 1; $x <= $res['total_pages']; $x++) : ?>
+                                <li class="page-item <?php if($x == $page) echo "active"; ?>">
+                                    <a class="page-link" href="
+                                    <?php
+                                        
+                                        $url = "?page=".$x;
+
+                                        if (!empty($categoryId)) {
+                                            $url .= "&categoryid=".$categoryId;
+                                        }
+
+                                        if (!empty($keyword)) {
+                                            $url .= "&q=".$keyword;
+                                        }
+                                        
+                                        echo $url;
+                                        
+                                    ?>">
+                                        <?php echo $x; ?>
+                                    </a>
+                                </li>
+                            <?php endfor ?>
+                        </ul>
+                    </nav>
+                <?php endif ?>
+
             </div>
 
         </div>

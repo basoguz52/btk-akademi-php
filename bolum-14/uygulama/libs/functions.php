@@ -46,7 +46,10 @@ function getCoursesByFilters($categoryId, $keyword, $page)
 
     $sonuc = mysqli_query($baglanti, $sql);
     mysqli_close($baglanti);
-    return $sonuc;
+    return array(
+        "total_pages" => $total_pages,
+        "data" => $sonuc
+    );
 }
 
 function getCourses(bool $anasayfa, bool $onay)
